@@ -1,0 +1,8 @@
+{
+  "name": "Igem",
+  "description": "Number generator for igem",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
