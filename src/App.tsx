@@ -29,20 +29,27 @@ export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [showCamera, setShowCamera] = useState(false);
 
-  const handleNumberClick = (num: string) => {
-    if (code.length < 12) {
-      setCode(prev => prev + num);
-      setError(null);
+  const triggerHaptic = () => {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(15); // Short, crisp haptic feedback
     }
   };
 
+  const handleNumberClick = (num: string) => {
+    triggerHaptic();
+    setCode(prev => prev.length < 12 ? prev + num : prev);
+    setError(null);
+  };
+
   const handleBackspace = () => {
+    triggerHaptic();
     setCode(prev => prev.slice(0, -1));
     setResult(null);
     setError(null);
   };
 
   const handleClear = () => {
+    triggerHaptic();
     setCode('');
     setResult(null);
     setError(null);
@@ -197,26 +204,26 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-white font-sans flex flex-col overflow-hidden select-none">
+    <div className="h-screen h-[100dvh] bg-neutral-950 text-white font-sans flex flex-col overflow-hidden select-none">
       {/* Header / Display */}
-      <div className="p-6 pt-12 flex flex-col items-center justify-center space-y-4">
-        <h1 className="text-neutral-500 text-xs font-mono uppercase tracking-[0.2em]">Service Key Generator</h1>
+      <div className="p-4 pt-8 shrink-0 flex flex-col items-center justify-center space-y-3">
+        <h1 className="text-neutral-500 text-[10px] font-mono uppercase tracking-[0.2em]">Service Key Generator</h1>
         
-        <div className="w-full max-w-xs bg-neutral-900/50 border border-neutral-800 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[120px] relative overflow-hidden">
+        <div className="w-full max-w-xs bg-neutral-900/50 border border-neutral-800 rounded-2xl p-4 flex flex-col items-center justify-center min-h-[100px] relative overflow-hidden">
           {isAnalyzing && (
             <div className="absolute inset-0 bg-neutral-900/80 backdrop-blur-sm flex items-center justify-center z-10">
-              <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
-              <span className="ml-3 text-sm font-medium">AI Analyzing...</span>
+              <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
+              <span className="ml-2 text-xs font-medium">AI Analyzing...</span>
             </div>
           )}
           
-          <div className="grid grid-cols-6 gap-x-4 gap-y-4 mb-2 w-full px-2">
+          <div className="grid grid-cols-6 gap-x-3 gap-y-3 mb-1 w-full px-1">
             {[...Array(12)].map((_, i) => (
               <motion.div 
                 key={i}
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className={`w-4 h-6 border-b-2 flex items-center justify-center text-xl font-bold ${
+                className={`w-full aspect-[2/3] border-b-2 flex items-center justify-center text-lg font-bold ${
                   code[i] ? 'border-blue-500 text-white' : 'border-neutral-700 text-neutral-700'
                 }`}
               >
@@ -231,13 +238,13 @@ export default function App() {
                 initial={{ y: 10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: -10, opacity: 0 }}
-                className="mt-4 flex flex-col items-center"
+                className="mt-2 flex flex-col items-center"
               >
-                <div className="text-blue-400 text-[10px] uppercase tracking-widest mb-1">Password Generated</div>
-                <div className="text-4xl font-black tracking-tighter text-white">{result}</div>
+                <div className="text-blue-400 text-[8px] uppercase tracking-widest mb-0.5">Password Generated</div>
+                <div className="text-3xl font-black tracking-tighter text-white">{result}</div>
               </motion.div>
             ) : (
-              <div className="mt-4 text-neutral-600 text-[10px] uppercase tracking-widest">
+              <div className="mt-2 text-neutral-600 text-[8px] uppercase tracking-widest">
                 {code.length}/12 Digits
               </div>
             )}
@@ -248,52 +255,52 @@ export default function App() {
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex items-center text-red-400 text-xs bg-red-400/10 px-3 py-1.5 rounded-full border border-red-400/20"
+            className="flex items-center text-red-400 text-[10px] bg-red-400/10 px-2 py-1 rounded-full border border-red-400/20"
           >
-            <AlertCircle className="w-3 h-3 mr-1.5" />
+            <AlertCircle className="w-2.5 h-2.5 mr-1" />
             {error}
           </motion.div>
         )}
       </div>
 
       {/* Pinpad */}
-      <div className="flex-1 flex flex-col justify-end p-6 pb-12">
-        <div className="grid grid-cols-3 gap-4 max-w-sm mx-auto w-full">
+      <div className="flex-1 flex flex-col justify-center p-4 min-h-0">
+        <div className="grid grid-cols-3 grid-rows-4 gap-3 max-w-sm mx-auto w-full flex-1 max-h-[400px]">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
             <button
               key={n}
-              onClick={() => handleNumberClick(n.toString())}
-              className="h-20 rounded-2xl bg-neutral-900 border border-neutral-800 text-3xl font-medium active:bg-neutral-800 active:scale-95 transition-all flex items-center justify-center"
+              onPointerDown={() => handleNumberClick(n.toString())}
+              className="rounded-xl bg-neutral-900 border border-neutral-800 text-2xl font-medium active:bg-neutral-700 active:scale-95 flex items-center justify-center select-none touch-none"
             >
               {n}
             </button>
           ))}
           <button
-            onClick={handleClear}
-            className="h-20 rounded-2xl bg-neutral-900/50 border border-neutral-800 text-neutral-500 text-sm font-bold active:bg-neutral-800 active:scale-95 transition-all flex items-center justify-center uppercase tracking-widest"
+            onPointerDown={handleClear}
+            className="rounded-xl bg-neutral-900/50 border border-neutral-800 text-neutral-500 text-[10px] font-bold active:bg-neutral-700 active:scale-95 flex items-center justify-center uppercase tracking-widest select-none touch-none"
           >
             Clear
           </button>
           <button
-            onClick={() => handleNumberClick('0')}
-            className="h-20 rounded-2xl bg-neutral-900 border border-neutral-800 text-3xl font-medium active:bg-neutral-800 active:scale-95 transition-all flex items-center justify-center"
+            onPointerDown={() => handleNumberClick('0')}
+            className="rounded-xl bg-neutral-900 border border-neutral-800 text-2xl font-medium active:bg-neutral-700 active:scale-95 flex items-center justify-center select-none touch-none"
           >
             0
           </button>
           <button
-            onClick={handleBackspace}
-            className="h-20 rounded-2xl bg-neutral-900/50 border border-neutral-800 text-neutral-500 active:bg-neutral-800 active:scale-95 transition-all flex items-center justify-center"
+            onPointerDown={handleBackspace}
+            className="rounded-xl bg-neutral-900/50 border border-neutral-800 text-neutral-500 active:bg-neutral-700 active:scale-95 flex items-center justify-center select-none touch-none"
           >
-            <Delete className="w-6 h-6" />
+            <Delete className="w-5 h-5" />
           </button>
         </div>
 
         {/* AI Controls */}
-        <div className="grid grid-cols-2 gap-4 mt-8 max-w-sm mx-auto w-full">
+        <div className="grid grid-cols-2 gap-3 mt-4 max-w-sm mx-auto w-full shrink-0">
           <button
             onClick={toggleListening}
             disabled={isAnalyzing}
-            className={`h-14 rounded-2xl flex items-center justify-center space-x-3 transition-all ${
+            className={`h-12 rounded-xl flex items-center justify-center space-x-2 transition-all ${
               isListening 
                 ? 'bg-red-500 text-white animate-pulse' 
                 : 'bg-blue-600/10 border border-blue-500/30 text-blue-400 active:bg-blue-600/20'
@@ -302,16 +309,16 @@ export default function App() {
             {isListening ? (
               <>
                 <div className="flex space-x-1">
-                  <div className="w-1 h-3 bg-white animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-1 h-4 bg-white animate-bounce" style={{ animationDelay: '100ms' }} />
-                  <div className="w-1 h-3 bg-white animate-bounce" style={{ animationDelay: '200ms' }} />
+                  <div className="w-0.5 h-2.5 bg-white animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-0.5 h-3.5 bg-white animate-bounce" style={{ animationDelay: '100ms' }} />
+                  <div className="w-0.5 h-2.5 bg-white animate-bounce" style={{ animationDelay: '200ms' }} />
                 </div>
-                <span className="font-bold text-sm uppercase tracking-wider">Stop</span>
+                <span className="font-bold text-[10px] uppercase tracking-wider">Stop</span>
               </>
             ) : (
               <>
-                <Mic className="w-5 h-5" />
-                <span className="font-bold text-sm uppercase tracking-wider">Listen</span>
+                <Mic className="w-4 h-4" />
+                <span className="font-bold text-[10px] uppercase tracking-wider">Listen</span>
               </>
             )}
           </button>
@@ -319,10 +326,10 @@ export default function App() {
           <button
             onClick={startCamera}
             disabled={isAnalyzing}
-            className="h-14 rounded-2xl bg-blue-600/10 border border-blue-500/30 text-blue-400 active:bg-blue-600/20 flex items-center justify-center space-x-3 transition-all"
+            className="h-12 rounded-xl bg-blue-600/10 border border-blue-500/30 text-blue-400 active:bg-blue-600/20 flex items-center justify-center space-x-2 transition-all"
           >
-            <Camera className="w-5 h-5" />
-            <span className="font-bold text-sm uppercase tracking-wider">Scan</span>
+            <Camera className="w-4 h-4" />
+            <span className="font-bold text-[10px] uppercase tracking-wider">Scan</span>
           </button>
         </div>
       </div>
