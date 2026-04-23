@@ -1,7 +1,7 @@
 {
   "name": "Service Key Gen",
   "short_name": "KeyGen",
-  "description": "Service Password Generator with AI Voice and Vision",
+  "description": "Offline Service Password Generator with High-Speed Pinpad and Voice Input",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",
